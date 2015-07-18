@@ -10,7 +10,7 @@
     "scripts": ["jquery.js","pushbullet.js","background.js"]
   },
   "options_ui": {
-    "page": "options.html",
+    "page": "setup.html",
     "chrome_style": true
   },
   "browser_action": {
@@ -19,8 +19,9 @@
   },
   "permissions": [
     "webRequest",
-	"tabs",
-	"notifications",
+    "storage",
+	  "tabs",
+	  "notifications",
     "http://834s-qflow-pa.its.unimelb.edu.au/"
   ]
 }
