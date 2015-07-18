@@ -1,0 +1,26 @@
+{
+  "manifest_version": 2,
+
+  "name": "QNotify",
+  "author": "Chris Bradley",
+  "description": "Sends a desktop and Pushbullet notification when a qflow ticket is received.",
+  "version": "0.1",
+  
+  "background": {
+    "scripts": ["jquery.js","pushbullet.js","background.js"]
+  },
+  "options_ui": {
+    "page": "options.html",
+    "chrome_style": true
+  },
+  "browser_action": {
+    "default_icon": "icon.png",
+    "default_popup": "popup.html"
+  },
+  "permissions": [
+    "webRequest",
+	"tabs",
+	"notifications",
+    "http://834s-qflow-pa.its.unimelb.edu.au/"
+  ]
+}
