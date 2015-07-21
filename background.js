@@ -11,9 +11,19 @@ qflowActive = false;
 // List of tickets notifications have been sent for
 var ticketList = [];
 
+// Ignore tickets?
+var isActive = true;
+
 // Check if QFlow is open
 checkQflowOpen();
 
+// Set icon
+if (qflowActive) {
+	console.log("QFlow!");
+	
+} else {
+	console.log(":(");
+}
 // Load settings
 chrome.storage.sync.get({
 	apiKey: "",
@@ -93,10 +103,20 @@ chrome.storage.sync.get({
 function checkQflowOpen() {
 		chrome.tabs.query({url: "http://834s-qflow-pa.its.unimelb.edu.au/*"},
 			function(tabs) {
-				if (tabs.length > 0)
+				console.log(tabs.length);
+				if (tabs.length > 0) {
 					qflowActive = true;
-				else
+				} else {
 					qflowActive = false;
+				}
+				
+				if (qflowActive && !isActive) {
+					chrome.browserAction.setIcon({path: 'yellow_q.png'});
+				} else if (qflowActive && isActive) {
+					chrome.browserAction.setIcon({path: 'green_q.png'});
+				} else {
+					chrome.browserAction.setIcon({path: 'red_q.png'});
+				}
 		} );
 }
 

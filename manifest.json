@@ -14,8 +14,7 @@
     "chrome_style": true
   },
   "browser_action": {
-    "default_icon": "icon.png",
-    "default_popup": "popup.html"
+    "default_icon": "red_q.png"
   },
   "permissions": [
     "webRequest",
