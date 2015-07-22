@@ -18,7 +18,7 @@ $(document).ready(function() {
 				$("#step1").css("display", "block");
 				$("#step2").css("display", "none");
 				
-				alert("Your API key is invalid.");
+				showError("Your API key is invalid, try a different key.");
 			} else {
 				// Display devices for user to select from a combo box
 				displayDevices(res.devices);
@@ -30,11 +30,16 @@ $(document).ready(function() {
 	});
 	
 	$("#save").click(function() {
-		// Save the users selection
-		saveOptions();
-		// Show 'finished' dialogue
-		$("#step3").css("display", "none");
-		$("#step4").css("display", "flex");
+		var device = $("#pushbulletDevice").val();
+		if (device != null) {
+			// Save the users selection
+			saveOptions();
+			// Show 'finished' dialogue
+			$("#step3").css("display", "none");
+			$("#step4").css("display", "flex");
+		} else {
+			showError("You need to select a device.");
+		}
 	});
 });
 
@@ -72,4 +77,15 @@ function restoreOptions() {
 	}, function(items) {
 		$("#pushbulletID").val(items.apiKey);
   });
+}
+
+function showError(msg) {
+	var $div = $('<div />').appendTo('body');
+	$div.attr('id', 'error');
+	$div.append("<h1>" + msg + "</h1>");
+	$div.append("<button id=\"close\">Close</button>");
+	
+	$("#close").click(function() {
+		$("#error").remove();
+	});
 }
