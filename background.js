@@ -132,7 +132,7 @@ function checkQflowOpen() {
 function notifyDesktop(timeStr, ticketNumber) {
 	try {
 		var opt = {
-			iconUrl: "icon.jpg",
+			iconUrl: "blue_q.png",
 			type: 'basic',
 			title: 'QFlow Ticket',
 			message: 'New ticket received at ' + timeStr + ' (' + ticketNumber + ')',
