@@ -4,7 +4,7 @@
   "name": "QNotify",
   "author": "Chris Bradley",
   "description": "Sends a desktop and Pushbullet notification when a qflow ticket is received.",
-  "version": "0.1",
+  "version": "0.2",
   
   "background": {
     "scripts": ["jquery.js","pushbullet.js","background.js"]
