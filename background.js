@@ -14,16 +14,6 @@ var ticketList = [];
 // Ignore tickets?
 var isActive = true;
 
-// Check if QFlow is open
-checkQflowOpen();
-
-// Set icon
-if (qflowActive) {
-	console.log("QFlow!");
-	
-} else {
-	console.log(":(");
-}
 // Load settings
 chrome.storage.sync.get({
 	apiKey: "",
@@ -48,10 +38,16 @@ chrome.storage.sync.get({
 		}
 	}
 
+	// Check if QFlow is open
+	checkQflowOpen();
+	// We want our icon to be right more often than we want to spam the QFlow servers
+	setInterval(function () {
+		checkQflowOpen();
+	}, 1000);
+	
 	setInterval(function () {
 		// We need an open Qflow tabs for our requests to be authenticated
 		// so make sure there is one open.
-		checkQflowOpen();
 		if (qflowActive) {
 			// Request stats from QFlow
 			var xhr = new XMLHttpRequest();
@@ -88,7 +84,10 @@ chrome.storage.sync.get({
 							
 							// Send desktop and mobile notifications
 							notifyDesktop(timeStr, ticketNumber);
-							notifyMobile(timeStr, ticketNumber);
+							if (isActive)
+								notifyMobile(timeStr, ticketNumber);
+							else
+								console.log("Suppressed mobile notification.");
 						}
 					}
 				}
@@ -97,13 +96,23 @@ chrome.storage.sync.get({
 			console.log("No active QFlow tab. Please log in to QFlow in a new tab.");
 		}
 	}, 5000);
+	
+	// Pause notifications if user clicks on extension icon
+	chrome.browserAction.onClicked.addListener(function (tab) {
+		if (isActive) {
+			isActive = false;
+			console.log("Notifications paused.");
+		} else {
+			isActive = true;
+			console.log("Notifications un-paused.");
+		}
+	});
 });
 
 // Query to see if any open tabs match the qflow URL
 function checkQflowOpen() {
 		chrome.tabs.query({url: "http://834s-qflow-pa.its.unimelb.edu.au/*"},
 			function(tabs) {
-				console.log(tabs.length);
 				if (tabs.length > 0) {
 					qflowActive = true;
 				} else {
@@ -126,7 +135,7 @@ function notifyDesktop(timeStr, ticketNumber) {
 			iconUrl: "icon.jpg",
 			type: 'basic',
 			title: 'QFlow Ticket',
-			message: 'New ticket received at ' + timeStr + '(' + ticketNumber + ')',
+			message: 'New ticket received at ' + timeStr + ' (' + ticketNumber + ')',
 			priority: 1,
 		};
                     
@@ -140,7 +149,7 @@ function notifyDesktop(timeStr, ticketNumber) {
 
 function notifyMobile(timeStr, ticketNumber) {
 	try {
-		PushBullet.push("note", devices.devices[selDevice].iden, null, {title: "QFlow Ticket", body: 'New ticket received at ' + timeStr + '(' + ticketNumber + ')'});
+		PushBullet.push("note", devices.devices[selDevice].iden, null, {title: "QFlow Ticket", body: 'New ticket received at ' + timeStr + ' (' + ticketNumber + ')'});
 	}
 	catch (err) {
 		console.log("Could not send mobile notification: " + err.message);
