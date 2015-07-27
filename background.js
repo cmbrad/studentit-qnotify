@@ -1,18 +1,25 @@
+// Browser icon names
+var QFLOW_ACTIVE = "qflow_active.png";
+var QFLOW_CLOSED = "qflow_closed.png";
+var QFLOW_ERROR  = "qflow_error.png";
+var QFLOW_PAUSED = "qflow_paused.png";
+
 // URL to request
-qflowUrl = "http://834s-qflow-pa.its.unimelb.edu.au/QFlow/Tools/ServiceConsole.aspx";
+var QFLOW_URL = "http://834s-qflow-pa.its.unimelb.edu.au/QFlow/Tools/ServiceConsole.aspx";
 
 // Settings
 var pushbulletID, pushbulletDevice, selDevice;
 selDevice = -1;
 
 // Do we have an active qflow tab open in chrome?
-qflowActive = false;
+var qflowActive = false;
+// Ignore tickets?
+var isEnabled = true;
+// Pushbullet signed in?
+var isAuth = false;
 
 // List of tickets notifications have been sent for
 var ticketList = [];
-
-// Ignore tickets?
-var isActive = true;
 
 // Load settings
 chrome.storage.sync.get({
@@ -22,19 +29,23 @@ chrome.storage.sync.get({
 	pushbulletID = items.apiKey;
 	pushbulletDevice = items.device;
 	
-	console.log("Loaded API key as " + pushbulletID);
-	console.log("Loaded device as " + pushbulletDevice);
-	
-	// Initialise Pushbullet
-	PushBullet.APIKey = pushbulletID;
-	devices = PushBullet.devices();
-	for(var i = 0; i < devices.devices.length; i++) {
-		if (devices.devices[i].nickname.toLowerCase().indexOf(pushbulletDevice.toLowerCase()) > -1) {
-			selDevice = i;
-			console.log("Using " + devices.devices[i].nickname + " (Device " + i + ")");
-			break;
-		} else {
-			console.log("'" + devices.devices[i].nickname + "' is not '" + pushbulletDevice + "'");
+	// Check if we actually loaded anything
+	if (pushbulletID.length != 0 && pushbulletDevice.length != 0) {
+		console.log("Loaded API key as " + pushbulletID);
+		console.log("Loaded device as " + pushbulletDevice);
+		
+		// Initialise Pushbullet
+		PushBullet.APIKey = pushbulletID;
+		devices = PushBullet.devices();
+		for(var i = 0; i < devices.devices.length; i++) {
+			if (devices.devices[i].nickname.toLowerCase().indexOf(pushbulletDevice.toLowerCase()) > -1) {
+				selDevice = i;
+				console.log("Using " + devices.devices[i].nickname + " (Device " + i + ")");
+				isAuth = true;
+				break;
+			} else {
+				console.log("'" + devices.devices[i].nickname + "' is not '" + pushbulletDevice + "'");
+			}
 		}
 	}
 
@@ -51,7 +62,7 @@ chrome.storage.sync.get({
 		if (qflowActive) {
 			// Request stats from QFlow
 			var xhr = new XMLHttpRequest();
-			xhr.open("GET", qflowUrl, true);
+			xhr.open("GET", QFLOW_URL, true);
 			xhr.send();
 			
 			xhr.onreadystatechange = function() {
@@ -84,7 +95,7 @@ chrome.storage.sync.get({
 							
 							// Send desktop and mobile notifications
 							notifyDesktop(timeStr, ticketNumber);
-							if (isActive)
+							if (isEnabled)
 								notifyMobile(timeStr, ticketNumber);
 							else
 								console.log("Suppressed mobile notification.");
@@ -99,11 +110,11 @@ chrome.storage.sync.get({
 	
 	// Pause notifications if user clicks on extension icon
 	chrome.browserAction.onClicked.addListener(function (tab) {
-		if (isActive) {
-			isActive = false;
+		if (isEnabled) {
+			isEnabled = false;
 			console.log("Notifications paused.");
 		} else {
-			isActive = true;
+			isEnabled = true;
 			console.log("Notifications un-paused.");
 		}
 	});
@@ -119,20 +130,24 @@ function checkQflowOpen() {
 					qflowActive = false;
 				}
 				
-				if (qflowActive && !isActive) {
-					chrome.browserAction.setIcon({path: 'yellow_q.png'});
-				} else if (qflowActive && isActive) {
-					chrome.browserAction.setIcon({path: 'green_q.png'});
+				// isEnabled is true if notifications are allowed to be sent
+				if (!qflowActive) {
+					chrome.browserAction.setIcon({path: QFLOW_CLOSED});
+				} else if (qflowActive && !isEnabled && isAuth) {
+					chrome.browserAction.setIcon({path: QFLOW_PAUSED});
+				} else if (qflowActive && isEnabled && isAuth) {
+					chrome.browserAction.setIcon({path: QFLOW_ACTIVE});
 				} else {
-					chrome.browserAction.setIcon({path: 'red_q.png'});
+					chrome.browserAction.setIcon({path: QFLOW_ERROR});
 				}
 		} );
 }
 
+// Send a chrome desktop notification
 function notifyDesktop(timeStr, ticketNumber) {
 	try {
 		var opt = {
-			iconUrl: "blue_q.png",
+			iconUrl: "qflow_closed.png",
 			type: 'basic',
 			title: 'QFlow Ticket',
 			message: 'New ticket received at ' + timeStr + ' (' + ticketNumber + ')',
@@ -147,6 +162,7 @@ function notifyDesktop(timeStr, ticketNumber) {
 	}
 }
 
+// Send a Pushbullet notification to the device the user selected during setup
 function notifyMobile(timeStr, ticketNumber) {
 	try {
 		PushBullet.push("note", devices.devices[selDevice].iden, null, {title: "QFlow Ticket", body: 'New ticket received at ' + timeStr + ' (' + ticketNumber + ')'});
