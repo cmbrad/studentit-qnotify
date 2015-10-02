@@ -38,6 +38,13 @@ chrome.storage.sync.get({
 		PushBullet.APIKey = pushbulletID;
 		devices = PushBullet.devices();
 		for(var i = 0; i < devices.devices.length; i++) {
+			// Nickname is sometimes null. I think that happens on disabled
+			// devices.
+			if (!devices.devices[i].nickname) {
+				console.log("Skipping disabled device.");
+				continue;
+			}
+
 			if (devices.devices[i].nickname.toLowerCase().indexOf(pushbulletDevice.toLowerCase()) > -1) {
 				selDevice = i;
 				console.log("Using " + devices.devices[i].nickname + " (Device " + i + ")");
