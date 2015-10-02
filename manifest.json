@@ -4,21 +4,21 @@
   "name": "QNotify",
   "author": "Chris Bradley",
   "description": "Sends a desktop and Pushbullet notification when a qflow ticket is received.",
-  "version": "0.9",
+  "version": "1.0",
   
   "background": {
-    "scripts": ["jquery.js","pushbullet.js","background.js"]
+    "scripts": ["js/jquery.js","js/pushbullet.js","js/background.js"]
   },
   "options_ui": {
-    "page": "setup.html",
+    "page":        "html/setup.html",
     "chrome_style": true
   },
   "browser_action": {
-    "default_icon": "qflow_closed.png"
+    "default_icon": "images/qflow_closed.png"
   },
-  "icons": { "16": "icon16.png",
-           "48": "icon48.png",
-          "128": "icon128.png" },
+  "icons": { "16": "images/icon16.png",
+             "48": "images/icon48.png",
+            "128": "images/icon128.png" },
   "permissions": [
     "webRequest",
     "storage",

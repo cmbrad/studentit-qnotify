@@ -1,8 +1,11 @@
+// Directory paths
+var IMAGE_BASE = "../images/";
+
 // Browser icon names
-var QFLOW_ACTIVE = "qflow_active.png";
-var QFLOW_CLOSED = "qflow_closed.png";
-var QFLOW_ERROR  = "qflow_error.png";
-var QFLOW_PAUSED = "qflow_paused.png";
+var QFLOW_ACTIVE = IMAGE_BASE + "qflow_active.png";
+var QFLOW_CLOSED = IMAGE_BASE + "qflow_closed.png";
+var QFLOW_ERROR  = IMAGE_BASE + "qflow_error.png";
+var QFLOW_PAUSED = IMAGE_BASE + "qflow_paused.png";
 
 // URL to request
 var QFLOW_URL = "http://834s-qflow-pa.its.unimelb.edu.au/QFlow/Tools/ServiceConsole.aspx";
@@ -154,7 +157,7 @@ function checkQflowOpen() {
 function notifyDesktop(timeStr, ticketNumber) {
 	try {
 		var opt = {
-			iconUrl: "qflow_closed.png",
+			iconUrl: QFLOW_CLOSED,
 			type: 'basic',
 			title: 'QFlow Ticket',
 			message: 'New ticket received at ' + timeStr + ' (' + ticketNumber + ')',
